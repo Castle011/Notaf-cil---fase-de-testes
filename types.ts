@@ -17,6 +17,7 @@ export interface Invoice {
 export interface Message {
   role: 'user' | 'model';
   text: string;
+  rawContent?: any; // Stores the model's raw response for history
 }
 
 export type Page = 'dashboard' | 'profile' | 'create-invoice' | 'invoices' | 'about' | 'calendar' | 'settings' | 'chatbot';

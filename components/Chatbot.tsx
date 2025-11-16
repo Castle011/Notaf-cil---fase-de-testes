@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Chat, FunctionDeclaration, Type, Part } from "@google/genai";
+import { FunctionDeclaration, Type, Part } from "@google/genai";
 import { useTranslations } from '../context/LanguageContext';
 import { Invoice, InvoiceStatus, Message } from '../types';
-import { getAiClient, ApiKeyNotSetError } from '../lib/geminiClient';
+import { callGeminiProxy } from '../lib/geminiClient';
 
 interface ChatbotProps {
   invoices: Invoice[];
@@ -78,39 +78,21 @@ const Chatbot: React.FC<ChatbotProps> = ({ invoices, messages, setMessages, addI
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const chatRef = useRef<Chat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const isNewChat = messages.length === 0;
-    if (isNewChat) {
-      setError(null);
-      try {
-        const ai = getAiClient();
-        const today = new Date().toISOString().split('T')[0];
-        chatRef.current = ai.chats.create({
-          model: 'gemini-2.5-flash',
-          config: {
-            systemInstruction: `You are a highly capable assistant for an invoice management app called NotaFácil.
+  const systemInstruction = `You are a highly capable assistant for an invoice management app called NotaFácil.
 Your primary purpose is to help users manage their invoices. You can create, update, delete, or provide details about invoices.
 You can also chat about any other topic, but if the conversation strays too far from invoices, gently guide the user back to the app's purpose.
 Use the provided tools to perform invoice actions when requested by the user.
 For destructive actions like deleting an invoice, you MUST ask for user confirmation before calling the 'deleteInvoice' function.
-The current date is ${today}.
+The current date is ${new Date().toISOString().split('T')[0]}.
 Always respond in the user's language, be it Portuguese, English, or any other.
-When creating an invoice, the issue date is always today; you only need to ask for the due date.`,
-            tools: tools
-          },
-        });
+When creating an invoice, the issue date is always today; you only need to ask for the due date.`;
+
+  useEffect(() => {
+    if (messages.length === 0) {
+        setError(null);
         setMessages([{ role: 'model', text: t('chatbot.welcomeMessage') }]);
-      } catch (e) {
-        console.error("Error initializing chatbot:", e);
-        const errorMessage = e instanceof ApiKeyNotSetError
-            ? t('chatbot.apiKeyMissing')
-            : t('chatbot.errorMessage');
-        setError(errorMessage);
-        setMessages([{ role: 'model', text: errorMessage }]);
-      }
     }
   }, [messages.length, setMessages, t]);
 
@@ -160,7 +142,7 @@ When creating an invoice, the issue date is always today; you only need to ask f
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading || !chatRef.current) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', text: input };
     setMessages(prev => [...prev, userMessage]);
@@ -170,35 +152,61 @@ When creating an invoice, the issue date is always today; you only need to ask f
     setError(null);
     
     try {
-        // Use sendMessage to get the full response, which may include function calls.
-        let response = await chatRef.current.sendMessage({ message: textToSend });
+        const buildHistory = (currentMessages: Message[]): Part[] => {
+            return currentMessages
+                .filter(m => m.text !== t('chatbot.welcomeMessage'))
+                .flatMap(msg => {
+                    if (msg.role === 'user') {
+                        return { role: 'user', parts: [{ text: msg.text }] };
+                    }
+                    if (msg.role === 'model' && msg.rawContent) {
+                        return msg.rawContent;
+                    }
+                    if (msg.role === 'model') {
+                        return { role: 'model', parts: [{ text: msg.text }] };
+                    }
+                    return [];
+                });
+        };
 
-        // If the model returns function calls, enter a loop to resolve them.
+        let currentHistory = buildHistory(messages);
+        let contents = [...currentHistory, { role: 'user', parts: [{ text: textToSend }] }];
+        
+        let response = await callGeminiProxy({
+            model: 'gemini-2.5-flash',
+            contents,
+            config: { systemInstruction, tools }
+        });
+
         while (response.functionCalls && response.functionCalls.length > 0) {
-            // This example handles one function call per turn for simplicity, mirroring the original logic.
             const fc = response.functionCalls[0];
+            
+            // Display a message indicating tool use
+            setMessages(prev => [...prev, { role: 'model', text: `Chamando ferramenta: \`${fc.name}\`...` }]);
+            
             const result = await executeFunctionCall(fc.name, fc.args);
             
-            const functionResponsePart: Part = {
-                functionResponse: {
-                    name: fc.name,
-                    response: { result }
-                }
-            };
+            contents = [
+                ...contents,
+                response.rawContent, // Model's turn asking for the function call
+                { role: 'function', parts: [{ functionResponse: { name: fc.name, response: { result } } }] }
+            ];
 
-            // Send the function result back to the model.
-            // The `message` property should contain an array of Parts.
-            response = await chatRef.current.sendMessage({ message: [functionResponsePart] });
+            response = await callGeminiProxy({
+                model: 'gemini-2.5-flash',
+                contents,
+                config: { systemInstruction, tools }
+            });
         }
         
-        // After any function calls are resolved, the final text response is in `response.text`.
         if (response.text) {
-             setMessages(prev => [...prev, { role: 'model', text: response.text }]);
+             const modelMessage: Message = { role: 'model', text: response.text, rawContent: response.rawContent };
+             setMessages(prev => [...prev, modelMessage]);
         }
 
     } catch (err: any) {
         console.error("Chatbot error:", err);
-        const errorMessage = t('chatbot.errorMessage');
+        const errorMessage = err.message.includes('API key') ? t('chatbot.apiKeyMissing') : t('chatbot.errorMessage');
         setError(errorMessage);
         setMessages(prev => [...prev, { role: 'model', text: errorMessage }]);
     } finally {
@@ -235,7 +243,7 @@ When creating an invoice, the issue date is always today; you only need to ask f
         <div ref={messagesEndRef} />
       </div>
 
-      {error && !error.includes('API key') && <p className="px-4 text-sm text-red-500">{error}</p>}
+      {error && <p className="px-4 text-sm text-red-500">{error}</p>}
       
       <div className="p-4 border-t border-slate-200 dark:border-slate-700">
         <form onSubmit={handleSend} className="flex items-center space-x-2">

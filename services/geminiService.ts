@@ -1,4 +1,4 @@
-import { getAiClient, ApiKeyNotSetError } from '../lib/geminiClient';
+import { callGeminiProxy } from '../lib/geminiClient';
 
 const prompts = {
     pt: (clientName: string, amount: number, service: string) => `Gere uma breve observação profissional para uma nota fiscal em português. Cliente: "${clientName}", Valor: R$ ${amount.toFixed(2)}, Serviço: "${service}". A observação deve ser concisa e formal.`,
@@ -9,8 +9,7 @@ export const generateInvoiceObservation = async (clientName: string, amount: num
     const prompt = prompts[lang](clientName, amount, service);
 
     try {
-        const ai = getAiClient();
-        const response = await ai.models.generateContent({
+        const response = await callGeminiProxy({
             model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
@@ -23,13 +22,10 @@ export const generateInvoiceObservation = async (clientName: string, amount: num
         });
 
         return response.text.trim();
-    } catch (error) {
-        console.error("Error generating observation with Gemini API:", error);
-        if (error instanceof ApiKeyNotSetError) {
-            return lang === 'pt' 
-                ? "Chave de API não configurada. Configure a variável de ambiente API_KEY para usar a IA." 
-                : "API Key not configured. Set the API_KEY environment variable to use AI.";
-        }
-        return lang === 'pt' ? "O serviço de IA não está disponível no momento." : "AI service is currently unavailable.";
+    } catch (error: any) {
+        console.error("Error generating observation via proxy:", error);
+        return lang === 'pt' 
+            ? `O serviço de IA não está disponível: ${error.message}` 
+            : `AI service is unavailable: ${error.message}`;
     }
 };
