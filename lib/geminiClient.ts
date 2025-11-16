@@ -4,21 +4,14 @@ let ai: GoogleGenAI | null = null;
 
 /**
  * Retorna uma instância singleton do cliente GoogleGenAI.
- * Ele inicializa o cliente na primeira chamada, o que ajuda a garantir
- * que process.env.API_KEY esteja disponível.
+ * Ele inicializa o cliente de forma otimista na primeira chamada.
  */
-export const getAiClient = (): GoogleGenAI | null => {
+export const getAiClient = (): GoogleGenAI => {
   if (ai) {
     return ai;
   }
 
-  const apiKey = process.env.API_KEY;
-
-  if (apiKey) {
-    ai = new GoogleGenAI({ apiKey });
-    return ai;
-  } else {
-    console.warn("Chave de API do Gemini não encontrada. Os recursos de IA serão desativados.");
-    return null;
-  }
+  // Inicializa o cliente de forma otimista. A biblioteca lidará com a chave de API ausente na chamada da API.
+  ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  return ai;
 };

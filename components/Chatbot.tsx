@@ -85,20 +85,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ invoices, messages, setMessages, addI
     const isNewChat = messages.length === 0;
     if (isNewChat) {
       setError(null);
-      const ai = getAiClient();
-      if (!ai) {
-        console.warn("API_KEY not found. Chatbot will be disabled.");
-        const apiKeyError = t('chatbot.apiKeyMissing');
-        setError(apiKeyError);
-        setMessages([{ role: 'model', text: apiKeyError }]);
-        return;
-      }
-      
-      const today = new Date().toISOString().split('T')[0];
-      chatRef.current = ai.chats.create({
-        model: 'gemini-2.5-flash',
-        config: {
-          systemInstruction: `You are a highly capable assistant for an invoice management app called NotaFácil.
+      try {
+        const ai = getAiClient();
+        const today = new Date().toISOString().split('T')[0];
+        chatRef.current = ai.chats.create({
+          model: 'gemini-2.5-flash',
+          config: {
+            systemInstruction: `You are a highly capable assistant for an invoice management app called NotaFácil.
 Your primary purpose is to help users manage their invoices. You can create, update, delete, or provide details about invoices.
 You can also chat about any other topic, but if the conversation strays too far from invoices, gently guide the user back to the app's purpose.
 Use the provided tools to perform invoice actions when requested by the user.
@@ -106,10 +99,16 @@ For destructive actions like deleting an invoice, you MUST ask for user confirma
 The current date is ${today}.
 Always respond in the user's language, be it Portuguese, English, or any other.
 When creating an invoice, the issue date is always today; you only need to ask for the due date.`,
-          tools: tools
-        },
-      });
-      setMessages([{ role: 'model', text: t('chatbot.welcomeMessage') }]);
+            tools: tools
+          },
+        });
+        setMessages([{ role: 'model', text: t('chatbot.welcomeMessage') }]);
+      } catch (e) {
+        console.error("Error initializing chatbot:", e);
+        const apiKeyError = t('chatbot.apiKeyMissing');
+        setError(apiKeyError);
+        setMessages([{ role: 'model', text: apiKeyError }]);
+      }
     }
   }, [messages.length, setMessages, t]);
 

@@ -6,14 +6,10 @@ const prompts = {
 };
 
 export const generateInvoiceObservation = async (clientName: string, amount: number, service: string, lang: 'pt' | 'en'): Promise<string> => {
-    const ai = getAiClient();
-    if (!ai) {
-        return lang === 'pt' ? "O serviço de IA não está disponível no momento." : "AI service is currently unavailable.";
-    }
-
     const prompt = prompts[lang](clientName, amount, service);
 
     try {
+        const ai = getAiClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
@@ -29,6 +25,6 @@ export const generateInvoiceObservation = async (clientName: string, amount: num
         return response.text.trim();
     } catch (error) {
         console.error("Error generating observation with Gemini API:", error);
-        return lang === 'pt' ? "Erro ao gerar observação. Tente novamente." : "Error generating observation. Please try again.";
+        return lang === 'pt' ? "O serviço de IA não está disponível no momento." : "AI service is currently unavailable.";
     }
 };
