@@ -1,13 +1,24 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.API_KEY;
-
 let ai: GoogleGenAI | null = null;
 
-if (apiKey) {
-    ai = new GoogleGenAI({ apiKey });
-} else {
-    console.warn("Gemini API key not found in process.env.API_KEY. AI features will be disabled.");
-}
+/**
+ * Retorna uma instância singleton do cliente GoogleGenAI.
+ * Ele inicializa o cliente na primeira chamada, o que ajuda a garantir
+ * que process.env.API_KEY esteja disponível.
+ */
+export const getAiClient = (): GoogleGenAI | null => {
+  if (ai) {
+    return ai;
+  }
 
-export { ai };
+  const apiKey = process.env.API_KEY;
+
+  if (apiKey) {
+    ai = new GoogleGenAI({ apiKey });
+    return ai;
+  } else {
+    console.warn("Chave de API do Gemini não encontrada. Os recursos de IA serão desativados.");
+    return null;
+  }
+};

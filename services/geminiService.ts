@@ -1,4 +1,4 @@
-import { ai } from '../lib/geminiClient';
+import { getAiClient } from '../lib/geminiClient';
 
 const prompts = {
     pt: (clientName: string, amount: number, service: string) => `Gere uma breve observação profissional para uma nota fiscal em português. Cliente: "${clientName}", Valor: R$ ${amount.toFixed(2)}, Serviço: "${service}". A observação deve ser concisa e formal.`,
@@ -6,6 +6,7 @@ const prompts = {
 };
 
 export const generateInvoiceObservation = async (clientName: string, amount: number, service: string, lang: 'pt' | 'en'): Promise<string> => {
+    const ai = getAiClient();
     if (!ai) {
         return lang === 'pt' ? "O serviço de IA não está disponível no momento." : "AI service is currently unavailable.";
     }
@@ -13,7 +14,6 @@ export const generateInvoiceObservation = async (clientName: string, amount: num
     const prompt = prompts[lang](clientName, amount, service);
 
     try {
-        // FIX: Simplified the `contents` parameter for a single text prompt.
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Chat, FunctionDeclaration, Type, Part } from "@google/genai";
 import { useTranslations } from '../context/LanguageContext';
 import { Invoice, InvoiceStatus, Message } from '../types';
-import { ai } from '../lib/geminiClient';
+import { getAiClient } from '../lib/geminiClient';
 
 interface ChatbotProps {
   invoices: Invoice[];
@@ -85,6 +85,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ invoices, messages, setMessages, addI
     const isNewChat = messages.length === 0;
     if (isNewChat) {
       setError(null);
+      const ai = getAiClient();
       if (!ai) {
         console.warn("API_KEY not found. Chatbot will be disabled.");
         const apiKeyError = t('chatbot.apiKeyMissing');
