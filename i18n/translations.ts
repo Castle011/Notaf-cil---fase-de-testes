@@ -203,6 +203,12 @@ export const translations: Record<string, any> = {
       apiKeyMissing: 'A chave da API não está configurada. O chatbot está desativado.',
       newChat: 'Novo Chat',
     },
+    apiKey: {
+      title: 'Configurar Chave de API',
+      body: 'Para usar os recursos de IA, por favor, selecione uma chave de API do Google AI Studio. Isso associará o uso da API e os custos à sua conta.',
+      button: 'Selecionar Chave de API',
+      billingLink: 'Saiba mais sobre preços e cobrança'
+    },
     common: {
       client: 'Cliente',
       amount: 'Valor',
@@ -423,6 +429,12 @@ export const translations: Record<string, any> = {
       errorMessage: 'Sorry, an error occurred. Please try again later.',
       apiKeyMissing: 'API Key is not configured. Chatbot is disabled.',
       newChat: 'New Chat',
+    },
+    apiKey: {
+      title: 'Configure API Key',
+      body: 'To use the AI features, please select a Google AI Studio API key. This will associate API usage and costs with your account.',
+      button: 'Select API Key',
+      billingLink: 'Learn more about pricing and billing'
     },
     common: {
       client: 'Client',
