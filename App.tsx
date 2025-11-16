@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Session, User } from '@supabase/supabase-js';
+import { Session } from '@supabase/supabase-js';
 import { supabase } from './lib/supabaseClient';
 import Dashboard from './components/Dashboard';
 import CreateInvoice from './components/CreateInvoice';
@@ -20,7 +20,6 @@ import { useInvoicesRealtime } from './hooks/useInvoicesRealtime';
 import { createInvoiceSupabase, updateInvoiceSupabase, deleteInvoiceSupabase, generateUUID } from './services/supabaseService';
 import Login from './components/Login';
 import AuthConfirmedPage from './components/AuthConfirmedPage';
-import SelectApiKeyPage from './components/SelectApiKeyPage';
 
 
 const App: React.FC = () => {
@@ -32,10 +31,6 @@ const App: React.FC = () => {
   
   const { invoices, setInvoices } = useInvoicesRealtime();
   const [chatbotMessages, setChatbotMessages] = useState<Message[]>([]);
-
-  // State for API Key selection flow
-  const [apiKeyReady, setApiKeyReady] = useState(false);
-  const [isCheckingApiKey, setIsCheckingApiKey] = useState(true);
 
   useEffect(() => {
     // Handle both possible confirmation paths to be robust
@@ -65,33 +60,6 @@ const App: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Check for API key after session is established.
-  useEffect(() => {
-    const checkApiKey = async () => {
-      if (!session) {
-        setIsCheckingApiKey(false);
-        return;
-      }
-      setIsCheckingApiKey(true);
-      try {
-        // @ts-ignore aistudio is provided by the execution environment
-        if (window.aistudio && await window.aistudio.hasSelectedApiKey()) {
-          setApiKeyReady(true);
-        } else {
-          setApiKeyReady(false);
-        }
-      } catch (e) {
-        console.error("Error checking for AI Studio API key:", e);
-        setApiKeyReady(false); // Assume not ready if there's an error
-      } finally {
-        setIsCheckingApiKey(false);
-      }
-    };
-
-    checkApiKey();
-  }, [session]);
-
-
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.toggle('dark', theme === 'dark');
@@ -109,19 +77,6 @@ const App: React.FC = () => {
   const handleSetCurrentPage = (page: Page) => {
     setCurrentPage(page);
     setIsSidebarOpen(false); // Close sidebar on navigation
-  };
-
-  const handleSelectKey = async () => {
-    try {
-        // @ts-ignore aistudio is provided by the execution environment
-        if (window.aistudio) {
-            // @ts-ignore
-            await window.aistudio.openSelectKey();
-            setApiKeyReady(true);
-        }
-    } catch (e) {
-        console.error("Error opening select key dialog:", e);
-    }
   };
 
   const addInvoice = async (invoice: Omit<Invoice, 'id'>) => {
@@ -227,22 +182,6 @@ const App: React.FC = () => {
     return (
       <LanguageProvider>
         <Login />
-      </LanguageProvider>
-    );
-  }
-
-  if (isCheckingApiKey) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-100 dark:bg-slate-900">
-          <p className="text-slate-500 dark:text-slate-400">Verificando configuração...</p>
-      </div>
-    );
-  }
-
-  if (!apiKeyReady) {
-    return (
-      <LanguageProvider>
-        <SelectApiKeyPage onSelectKey={handleSelectKey} />
       </LanguageProvider>
     );
   }

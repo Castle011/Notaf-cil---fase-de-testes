@@ -200,14 +200,8 @@ export const translations: Record<string, any> = {
       welcomeMessage: 'Olá! Sou o assistente do NotaFácil. Como posso te ajudar hoje?',
       inputPlaceholder: 'Digite sua mensagem...',
       errorMessage: 'Desculpe, ocorreu um erro. Tente novamente mais tarde.',
-      apiKeyMissing: 'A chave da API não está configurada. O chatbot está desativado.',
+      apiKeyMissing: 'O serviço de IA não está disponível no momento. O chatbot está desativado.',
       newChat: 'Novo Chat',
-    },
-    apiKey: {
-      title: 'Configurar Chave de API',
-      body: 'Para usar os recursos de IA, por favor, selecione uma chave de API do Google AI Studio. Isso associará o uso da API e os custos à sua conta.',
-      button: 'Selecionar Chave de API',
-      billingLink: 'Saiba mais sobre preços e cobrança'
     },
     common: {
       client: 'Cliente',
@@ -427,14 +421,8 @@ export const translations: Record<string, any> = {
       welcomeMessage: 'Hello! I am the NotaFácil assistant. How can I help you today?',
       inputPlaceholder: 'Type your message...',
       errorMessage: 'Sorry, an error occurred. Please try again later.',
-      apiKeyMissing: 'API Key is not configured. Chatbot is disabled.',
+      apiKeyMissing: 'AI service is currently unavailable. Chatbot is disabled.',
       newChat: 'New Chat',
-    },
-    apiKey: {
-      title: 'Configure API Key',
-      body: 'To use the AI features, please select a Google AI Studio API key. This will associate API usage and costs with your account.',
-      button: 'Select API Key',
-      billingLink: 'Learn more about pricing and billing'
     },
     common: {
       client: 'Client',

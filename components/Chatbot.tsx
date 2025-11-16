@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Chat, FunctionDeclaration, Type, Part } from "@google/genai";
 import { useTranslations } from '../context/LanguageContext';
 import { Invoice, InvoiceStatus, Message } from '../types';
-import { getAiClient } from '../lib/geminiClient';
+import { ai } from '../lib/geminiClient';
 
 interface ChatbotProps {
   invoices: Invoice[];
@@ -85,7 +85,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ invoices, messages, setMessages, addI
     const isNewChat = messages.length === 0;
     if (isNewChat) {
       setError(null);
-      const ai = getAiClient();
       if (!ai) {
         console.warn("API_KEY not found. Chatbot will be disabled.");
         const apiKeyError = t('chatbot.apiKeyMissing');
@@ -196,12 +195,6 @@ When creating an invoice, the issue date is always today; you only need to ask f
         }
 
     } catch (err: any) {
-        // Handle specific API key error by reloading the page to trigger re-selection.
-        if (err.message?.includes('Requested entity was not found.')) {
-            alert("Sua chave de API parece ser inválida. A página será recarregada para que você possa selecionar uma nova chave.");
-            window.location.reload();
-            return;
-        }
         console.error("Chatbot error:", err);
         const errorMessage = t('chatbot.errorMessage');
         setError(errorMessage);
