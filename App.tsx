@@ -20,10 +20,12 @@ import { useInvoicesRealtime } from './hooks/useInvoicesRealtime';
 import { createInvoiceSupabase, updateInvoiceSupabase, deleteInvoiceSupabase, generateUUID } from './services/supabaseService';
 import Login from './components/Login';
 import AuthConfirmedPage from './components/AuthConfirmedPage';
+import SelectApiKeyPage from './components/SelectApiKeyPage';
 
 
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
+  const [apiKeyStatus, setApiKeyStatus] = useState<'checking' | 'selected' | 'not_selected'>('checking');
   const [isAuthConfirmPage, setIsAuthConfirmPage] = useState(false);
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
@@ -31,6 +33,29 @@ const App: React.FC = () => {
   
   const { invoices, setInvoices } = useInvoicesRealtime();
   const [chatbotMessages, setChatbotMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    const checkApiKey = async () => {
+      // Give the aistudio object a moment to initialize if needed
+      await new Promise(resolve => setTimeout(resolve, 100));
+  
+      if (window.aistudio && typeof window.aistudio.hasSelectedApiKey === 'function') {
+        const hasKey = await window.aistudio.hasSelectedApiKey();
+        setApiKeyStatus(hasKey ? 'selected' : 'not_selected');
+      } else {
+        console.warn('AI Studio context not found. Relying on environment variable.');
+        // This is a fallback for other environments.
+        if (process.env.API_KEY) {
+          setApiKeyStatus('selected');
+        } else {
+          // If no aistudio and no env var, we cannot proceed.
+          console.error('No API key available. The application cannot initialize AI features.');
+          setApiKeyStatus('not_selected');
+        }
+      }
+    };
+    checkApiKey();
+  }, []);
 
   useEffect(() => {
     // Handle both possible confirmation paths to be robust
@@ -169,6 +194,42 @@ const App: React.FC = () => {
         return <Dashboard invoices={invoices} />;
     }
   };
+
+  const handleSelectKey = async () => {
+    if (window.aistudio && typeof window.aistudio.openSelectKey === 'function') {
+      try {
+        await window.aistudio.openSelectKey();
+        // Optimistically assume success
+        setApiKeyStatus('selected');
+      } catch (e) {
+        console.error("Failed to open API key selection:", e);
+      }
+    } else {
+        alert("API key selection is not available in this environment. Please set the API_KEY environment variable.");
+    }
+  };
+  
+  const LoadingScreen = () => (
+    <div className="flex items-center justify-center min-h-screen bg-slate-100 dark:bg-slate-900">
+      <div className="text-slate-500 dark:text-slate-400">Loading...</div>
+    </div>
+  );
+
+  if (apiKeyStatus === 'checking') {
+      return (
+          <LanguageProvider>
+              <LoadingScreen />
+          </LanguageProvider>
+      );
+  }
+  
+  if (apiKeyStatus === 'not_selected') {
+    return (
+        <LanguageProvider>
+          <SelectApiKeyPage onSelectKey={handleSelectKey} />
+        </LanguageProvider>
+    );
+  }
   
   if (isAuthConfirmPage && !session) {
     return (

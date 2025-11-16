@@ -194,13 +194,19 @@ export const translations: Record<string, any> = {
       rlsUpdatePolicy: 'Permite que usuários atualizem suas próprias imagens.',
       rlsDeletePolicy: 'Permite que usuários excluam suas próprias imagens.',
     },
+    apiKey: {
+      title: 'Selecione uma Chave de API da Gemini',
+      body: 'Para usar os recursos de IA neste aplicativo, você precisa selecionar um projeto com a API da Gemini ativada. O uso da API pode incorrer em cobranças.',
+      button: 'Selecionar Chave de API',
+      billingLink: 'Saiba mais sobre preços e cobrança'
+    },
     chatbot: {
       pageTitle: 'Assistente de IA',
       popupTitle: 'Assistente NotaFácil',
       welcomeMessage: 'Olá! Sou o assistente do NotaFácil. Como posso te ajudar hoje?',
       inputPlaceholder: 'Digite sua mensagem...',
       errorMessage: 'Desculpe, ocorreu um erro. Tente novamente mais tarde.',
-      apiKeyMissing: 'A chave de API do Gemini não foi configurada. Para ativar o chatbot, por favor, adicione sua chave como uma variável de ambiente chamada API_KEY nas configurações do seu projeto na Vercel e faça o redeploy.',
+      apiKeyMissing: 'A chave de API do Gemini não foi encontrada. Por favor, recarregue a página e selecione uma chave de API para usar o assistente.',
       newChat: 'Novo Chat',
     },
     common: {
@@ -415,13 +421,19 @@ export const translations: Record<string, any> = {
       rlsUpdatePolicy: 'Allows users to update their own images.',
       rlsDeletePolicy: 'Allows users to delete their own images.',
     },
+    apiKey: {
+      title: 'Select a Gemini API Key',
+      body: 'To use the AI features in this application, you need to select a project with the Gemini API enabled. API usage may incur charges.',
+      button: 'Select API Key',
+      billingLink: 'Learn more about pricing and billing'
+    },
     chatbot: {
       pageTitle: 'AI Assistant',
       popupTitle: 'NotaFácil Assistant',
       welcomeMessage: 'Hello! I am the NotaFácil assistant. How can I help you today?',
       inputPlaceholder: 'Type your message...',
       errorMessage: 'Sorry, an error occurred. Please try again later.',
-      apiKeyMissing: 'The Gemini API key is not configured. To enable the chatbot, please add your key as an environment variable named API_KEY in your Vercel project settings and redeploy.',
+      apiKeyMissing: 'Gemini API key not found. Please reload the page and select an API key to use the assistant.',
       newChat: 'New Chat',
     },
     common: {

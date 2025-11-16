@@ -8,27 +8,20 @@ export class ApiKeyNotSetError extends Error {
   }
 }
 
-let ai: GoogleGenAI | null = null;
-
 /**
- * Retorna uma instância singleton do cliente GoogleGenAI.
- * Ele inicializa o cliente de forma otimista na primeira chamada.
+ * Creates and returns a new instance of the GoogleGenAI client.
+ * This ensures the most up-to-date API key from the environment is used for each call.
  * @throws {ApiKeyNotSetError} if the API_KEY environment variable is not set.
  */
 export const getAiClient = (): GoogleGenAI => {
-  if (ai) {
-    return ai;
-  }
-
   const apiKey = process.env.API_KEY;
 
   if (!apiKey) {
-    // Throw a specific error if the key is missing from the environment.
-    // This provides a clearer signal to the user about what's wrong.
-    console.error("API_KEY environment variable not set. Please set it in your Vercel project settings.");
-    throw new ApiKeyNotSetError("A variável de ambiente API_KEY não está configurada.");
+    const errorMsg = "Gemini API key not found. Please select a key using the prompt.";
+    console.error(errorMsg);
+    throw new ApiKeyNotSetError("Chave de API do Gemini não encontrada. Por favor, selecione uma chave.");
   }
 
-  ai = new GoogleGenAI({ apiKey });
-  return ai;
+  // Create a new client for each request to ensure it uses the latest key.
+  return new GoogleGenAI({ apiKey });
 };
