@@ -1,4 +1,4 @@
-import { getAiClient } from '../lib/geminiClient';
+import { getAiClient, ApiKeyNotSetError } from '../lib/geminiClient';
 
 const prompts = {
     pt: (clientName: string, amount: number, service: string) => `Gere uma breve observação profissional para uma nota fiscal em português. Cliente: "${clientName}", Valor: R$ ${amount.toFixed(2)}, Serviço: "${service}". A observação deve ser concisa e formal.`,
@@ -25,6 +25,11 @@ export const generateInvoiceObservation = async (clientName: string, amount: num
         return response.text.trim();
     } catch (error) {
         console.error("Error generating observation with Gemini API:", error);
+        if (error instanceof ApiKeyNotSetError) {
+            return lang === 'pt' 
+                ? "Chave de API não configurada. Configure a variável de ambiente API_KEY para usar a IA." 
+                : "API Key not configured. Set the API_KEY environment variable to use AI.";
+        }
         return lang === 'pt' ? "O serviço de IA não está disponível no momento." : "AI service is currently unavailable.";
     }
 };

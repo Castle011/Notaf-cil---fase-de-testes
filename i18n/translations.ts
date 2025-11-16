@@ -200,7 +200,7 @@ export const translations: Record<string, any> = {
       welcomeMessage: 'Olá! Sou o assistente do NotaFácil. Como posso te ajudar hoje?',
       inputPlaceholder: 'Digite sua mensagem...',
       errorMessage: 'Desculpe, ocorreu um erro. Tente novamente mais tarde.',
-      apiKeyMissing: 'O serviço de IA não está disponível no momento. O chatbot está desativado.',
+      apiKeyMissing: 'A chave de API do Gemini não foi configurada. Para ativar o chatbot, por favor, adicione sua chave como uma variável de ambiente chamada API_KEY nas configurações do seu projeto na Vercel e faça o redeploy.',
       newChat: 'Novo Chat',
     },
     common: {
@@ -421,7 +421,7 @@ export const translations: Record<string, any> = {
       welcomeMessage: 'Hello! I am the NotaFácil assistant. How can I help you today?',
       inputPlaceholder: 'Type your message...',
       errorMessage: 'Sorry, an error occurred. Please try again later.',
-      apiKeyMissing: 'AI service is currently unavailable. Chatbot is disabled.',
+      apiKeyMissing: 'The Gemini API key is not configured. To enable the chatbot, please add your key as an environment variable named API_KEY in your Vercel project settings and redeploy.',
       newChat: 'New Chat',
     },
     common: {

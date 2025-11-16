@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Chat, FunctionDeclaration, Type, Part } from "@google/genai";
 import { useTranslations } from '../context/LanguageContext';
 import { Invoice, InvoiceStatus, Message } from '../types';
-import { getAiClient } from '../lib/geminiClient';
+import { getAiClient, ApiKeyNotSetError } from '../lib/geminiClient';
 
 interface ChatbotProps {
   invoices: Invoice[];
@@ -105,9 +105,11 @@ When creating an invoice, the issue date is always today; you only need to ask f
         setMessages([{ role: 'model', text: t('chatbot.welcomeMessage') }]);
       } catch (e) {
         console.error("Error initializing chatbot:", e);
-        const apiKeyError = t('chatbot.apiKeyMissing');
-        setError(apiKeyError);
-        setMessages([{ role: 'model', text: apiKeyError }]);
+        const errorMessage = e instanceof ApiKeyNotSetError
+            ? t('chatbot.apiKeyMissing')
+            : t('chatbot.errorMessage');
+        setError(errorMessage);
+        setMessages([{ role: 'model', text: errorMessage }]);
       }
     }
   }, [messages.length, setMessages, t]);
