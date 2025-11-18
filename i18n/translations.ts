@@ -1,3 +1,4 @@
+
 export const translations: Record<string, any> = {
   pt: {
     sidebar: {
@@ -35,9 +36,9 @@ export const translations: Record<string, any> = {
         emailRequired: 'Por favor, insira seu e-mail para usar o Magic Link.',
     },
     authConfirm: {
-        title: 'Seu e-mail foi autenticado!',
-        subtitle: 'Agora você pode acessar o site normalmente.',
-        button: 'Voltar para o site',
+        title: '✔ Autenticação concluída!',
+        subtitle: 'Seu e-mail foi confirmado com sucesso. Agora você já pode acessar o NotaFácil.',
+        button: 'Ir para o site',
     },
     emailConfirm: {
         title: 'Seu e-mail foi autenticado com sucesso!',
@@ -262,9 +263,9 @@ export const translations: Record<string, any> = {
         emailRequired: 'Please enter your email to use Magic Link.',
     },
     authConfirm: {
-        title: 'Your email has been authenticated!',
-        subtitle: 'You can now access the site normally.',
-        button: 'Back to site',
+        title: '✔ Authentication complete!',
+        subtitle: 'Your email has been successfully confirmed. You can now access NotaFácil.',
+        button: 'Go to site',
     },
     emailConfirm: {
         title: 'Your email has been successfully authenticated!',
@@ -345,8 +346,8 @@ export const translations: Record<string, any> = {
         sortOptions: {
             dateDesc: 'Date (Newest)',
             dateAsc: 'Date (Oldest)',
-            clientAZ: 'Client (A-Z)',
-            clientZA: 'Client (Z-A)',
+            clientAZ: 'Cliente (A-Z)',
+            clientZA: 'Cliente (Z-A)',
             amountDesc: 'Amount (High-Low)',
             amountAsc: 'Amount (Low-High)',
             idAsc: 'ID (Ascending)',

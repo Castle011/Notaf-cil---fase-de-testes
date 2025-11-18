@@ -3,19 +3,29 @@ import { useTranslations } from '../context/LanguageContext';
 
 const AuthConfirmedPage: React.FC = () => {
   const { t } = useTranslations();
+
+  const goToSite = () => {
+    window.location.href = "https://notaf-cil-fase-de-testes.vercel.app";
+  };
+
   return (
-    <div className="bg-slate-900 font-sans flex flex-col justify-center items-center h-screen m-0">
-        <div className="bg-slate-800 px-12 py-8 rounded-2xl text-center shadow-xl max-w-md w-full mx-4">
-            <div className="text-5xl text-green-500 mb-4" aria-hidden="true">✅</div>
-            <h1 className="text-2xl mb-2 text-slate-100 font-bold">{t('authConfirm.title')}</h1>
-            <p className="text-slate-300 mb-8">{t('authConfirm.subtitle')}</p>
-            <button 
-                onClick={() => window.location.href = 'https://testerrrrr-alpha.vercel.app/'}
-                className="bg-indigo-500 border-none text-white py-3 px-6 rounded-lg cursor-pointer text-base font-medium transition-colors hover:bg-indigo-600"
-            >
-                {t('authConfirm.button')}
-            </button>
-        </div>
+    <div className="flex items-center justify-center min-h-screen bg-slate-100 dark:bg-slate-900">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-lg dark:bg-slate-800 text-center">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+          {t('authConfirm.title')}
+        </h1>
+
+        <p className="text-slate-500 dark:text-slate-400">
+          {t('authConfirm.subtitle')}
+        </p>
+
+        <button
+          onClick={goToSite}
+          className="mt-6 w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition"
+        >
+          {t('authConfirm.button')}
+        </button>
+      </div>
     </div>
   );
 };
