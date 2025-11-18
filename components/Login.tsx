@@ -43,7 +43,7 @@ const Login: React.FC = () => {
           full_name: fullName,
         },
         // Hardcode the redirect URL to the correct production site to fix 404 errors.
-        emailRedirectTo: `https://testerrrrr-alpha.vercel.app/auth-confirm`,
+        emailRedirectTo: `https://notaf-cil-fase-de-testes.vercel.app/auth-confirm`,
       },
     });
     if (error) {
@@ -68,7 +68,7 @@ const Login: React.FC = () => {
       email,
       options: {
         // Hardcode the redirect URL to the correct production site to fix 404 errors.
-        emailRedirectTo: `https://testerrrrr-alpha.vercel.app/auth-confirm`,
+        emailRedirectTo: `https://notaf-cil-fase-de-testes.vercel.app/auth-confirm`,
       },
     });
 
