@@ -50,13 +50,7 @@ const App: React.FC = () => {
         data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
         setSession(session);
-        // If a session is established and we were on a confirmation page,
-        // it means the user has successfully confirmed.
-        // We can now clean up the URL and show the main app.
-        if (session && (window.location.pathname === '/auth-confirm' || window.location.pathname === '/email-confirmed')) {
-          window.history.replaceState({}, document.title, '/');
-          setIsAuthConfirmPage(false);
-        }
+        // Logic removed: Do not auto-redirect here. Let AuthConfirmedPage handle the user interaction.
         if (loading) setLoading(false);
     });
 
@@ -187,7 +181,9 @@ const App: React.FC = () => {
       );
   }
   
-  if (isAuthConfirmPage && !session) {
+  // If we are on the auth confirm page, show it regardless of session state
+  // to confirm the action visually to the user.
+  if (isAuthConfirmPage) {
     return (
       <LanguageProvider>
         <AuthConfirmedPage />
