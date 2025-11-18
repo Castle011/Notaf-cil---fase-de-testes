@@ -25,10 +25,12 @@ import AuthConfirmedPage from './components/AuthConfirmedPage';
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  // Initialize directly from window.location to ensure immediate render on page load
+  
+  // Robust check for auth-confirm path, handling potential trailing slashes
   const [isAuthConfirmPage, setIsAuthConfirmPage] = useState(() => {
-      return window.location.pathname === '/auth-confirm';
+      return window.location.pathname.includes('/auth-confirm');
   });
+
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('theme') as 'light' | 'dark') || 'light');
@@ -37,8 +39,8 @@ const App: React.FC = () => {
   const [chatbotMessages, setChatbotMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    // Update state if location changes client-side
-    if (window.location.pathname === '/auth-confirm') {
+    // Double check on mount in case URL changes
+    if (window.location.pathname.includes('/auth-confirm')) {
       setIsAuthConfirmPage(true);
     }
   }, []);
