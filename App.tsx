@@ -25,7 +25,10 @@ import AuthConfirmedPage from './components/AuthConfirmedPage';
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthConfirmPage, setIsAuthConfirmPage] = useState(false);
+  // Initialize directly from window.location to ensure immediate render on page load
+  const [isAuthConfirmPage, setIsAuthConfirmPage] = useState(() => {
+      return window.location.pathname === '/auth-confirm';
+  });
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('theme') as 'light' | 'dark') || 'light');
@@ -34,8 +37,8 @@ const App: React.FC = () => {
   const [chatbotMessages, setChatbotMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    // Handle both possible confirmation paths to be robust
-    if (window.location.pathname === '/auth-confirm' || window.location.pathname === '/email-confirmed') {
+    // Update state if location changes client-side
+    if (window.location.pathname === '/auth-confirm') {
       setIsAuthConfirmPage(true);
     }
   }, []);
@@ -50,7 +53,6 @@ const App: React.FC = () => {
         data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
         setSession(session);
-        // Logic removed: Do not auto-redirect here. Let AuthConfirmedPage handle the user interaction.
         if (loading) setLoading(false);
     });
 
@@ -86,9 +88,6 @@ const App: React.FC = () => {
     // Optimistic update
     setInvoices(prev => [newInvoice, ...prev]);
     
-    // Do not navigate away, user might be in the chatbot
-    // setCurrentPage('dashboard');
-
     try {
         await createInvoiceSupabase(newInvoice);
     } catch (error) {
@@ -173,22 +172,22 @@ const App: React.FC = () => {
     </div>
   );
 
-  if (loading) {
-      return (
-          <LanguageProvider>
-              <LoadingScreen />
-          </LanguageProvider>
-      );
-  }
-  
-  // If we are on the auth confirm page, show it regardless of session state
-  // to confirm the action visually to the user.
+  // Priority Check: If we are on the auth confirm page, show it immediately.
+  // This bypasses the loading screen and session checks.
   if (isAuthConfirmPage) {
     return (
       <LanguageProvider>
         <AuthConfirmedPage />
       </LanguageProvider>
     );
+  }
+
+  if (loading) {
+      return (
+          <LanguageProvider>
+              <LoadingScreen />
+          </LanguageProvider>
+      );
   }
 
   if (!session) {
